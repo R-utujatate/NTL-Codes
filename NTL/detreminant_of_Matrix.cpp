@@ -33,14 +33,15 @@ int main() {
 
     // Read the matrix from the input file
     Mat<ZZ> matrix;
+    matrix.SetDims(78,78);
     InputFile >> matrix;
     OutputFile<<matrix;
 
     
 
     // Calculate the determinant of the matrix
-    ZZ det;
-    determinant(det,matrix);
+    ZZ det=determinant(matrix);
+    
    
 
     // Print the determinant to the output file
