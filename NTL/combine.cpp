@@ -7,11 +7,6 @@
 using namespace std;
 using namespace NTL;
 
-// Function to calculate determinant of a matrix
-ZZ calculateDeterminant(const Mat<ZZ>& matrix) {
-    ZZ det=determinant(matrix);
-    return det;
-}
 
 /// @brief 
 /// @param argc 
@@ -23,11 +18,18 @@ int main(int argc, char *argv[]) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if(size<2)
+    {
+        cerr<<"This program requires atleast 2 processes."<<endl;
+        MPI_Abort(MPI_COMM_WORLD,1);
+
+    }
 
     // Master process takes the input matrix from the user
-    Mat<ZZ> matrix;
-    matrix.SetDims(3,3);
+   // Mat<ZZ> matrix;
+   // matrix.SetDims(3,3);
     if (rank == 0) {
+        Mat<ZZ> matrix;
         // Prompt user to enter the matrix
         cout << "Enter the 3x3 matrix:" << endl;
 
@@ -42,17 +44,45 @@ int main(int argc, char *argv[]) {
             inputMatrixStream << endl;
         }
         inputMatrixStream >> matrix;
+        stringstream ss;
+        ss<<matrix;
+        string s=ss.str();
+        int strLen=s.length()+1;
+        char *ker_str=new char[strLen];
+        strcpy(ker_str,s.c_str());
+
+        MPI_Send(&strlen,1,MPI_INT,1,0,MPI_COMM_WORLD);
+        MPI_Send(ker_str,strLen,MPI_CHAR,1,0,MPI_COMM_WORLD);
+        ss.clear();
+        delete ker_str;
+        
+        
         
     }
 
-    
+    else
+    {
+     //Receive the matrix from process 0
 
-    // Calculate the determinant of the matrix
-    ZZ det = calculateDeterminant(matrix);
+        int strLen;
+        MPI_Recv(&strLen,1,MPI_INT,0,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        char*strKer=new char[strLen];
+        MPI_Recv(strKer,strLen,MPI_CHAR,0,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
-    // Output the determinant from each process
-    cout << "Process " << rank << " calculated determinant: " << det << endl;
+        Mat<ZZ>matrix;
+        stringstream ss;
+        ss<<strKer;
+        ss>>matrix;
+        delete strKer;
+        ss.clear();
+
+        cout<<"matrix received!"<<endl;
+        cout<<"Determinant is:"<<determinant(matrix)<<endl;
+
+    }
+        
 
     MPI_Finalize();
     return 0;
+    
 }
