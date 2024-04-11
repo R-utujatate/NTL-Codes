@@ -1,5 +1,7 @@
 #include <iostream>
 #include <sstream>
+#include<fstream>
+#include<NTL/matrix.h>
 #include <NTL/mat_ZZ.h>
 #include <NTL/ZZ_p.h>
 #include <mpi.h>
@@ -24,26 +26,16 @@ int main(int argc, char *argv[]) {
         MPI_Abort(MPI_COMM_WORLD,1);
 
     }
-
+      ifstream file("INPUT1.txt");
     // Master process takes the input matrix from the user
    // Mat<ZZ> matrix;
    // matrix.SetDims(3,3);
     if (rank == 0) {
         Mat<ZZ> matrix;
-        // Prompt user to enter the matrix
-        cout << "Enter the 3x3 matrix:" << endl;
-
-        // Read the matrix from input using stringstream and string
-        stringstream inputMatrixStream;
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                ZZ element;
-                cin >> element;
-                inputMatrixStream << element << " ";
-            }
-            inputMatrixStream << endl;
-        }
-        inputMatrixStream >> matrix;
+        matrix.SetDims(3,3);
+        file>>matrix;
+        cout<<"\nrows::"<<matrix.NumRows()<<endl;
+     
         stringstream ss;
         ss<<matrix;
         string s=ss.str();
@@ -51,7 +43,7 @@ int main(int argc, char *argv[]) {
         char *ker_str=new char[strLen];
         strcpy(ker_str,s.c_str());
 
-        MPI_Send(&strlen,1,MPI_INT,1,0,MPI_COMM_WORLD);
+        MPI_Send(&strLen,1,MPI_INT,1,0,MPI_COMM_WORLD);
         MPI_Send(ker_str,strLen,MPI_CHAR,1,0,MPI_COMM_WORLD);
         ss.clear();
         delete ker_str;
@@ -70,11 +62,14 @@ int main(int argc, char *argv[]) {
         MPI_Recv(strKer,strLen,MPI_CHAR,0,0,MPI_COMM_WORLD,MPI_STATUS_IGNORE);
 
         Mat<ZZ>matrix;
+        matrix.SetDims(3,3);
         stringstream ss;
         ss<<strKer;
         ss>>matrix;
         delete strKer;
         ss.clear();
+
+        cout<<"cols::"<<matrix.NumCols()<<endl;
 
         cout<<"matrix received!"<<endl;
         cout<<"Determinant is:"<<determinant(matrix)<<endl;
@@ -83,6 +78,7 @@ int main(int argc, char *argv[]) {
         
 
     MPI_Finalize();
+    file.close();
     return 0;
     
 }
