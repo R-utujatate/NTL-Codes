@@ -33,7 +33,7 @@ int main() {
 
     // Read the matrix from the input file
     Mat<ZZ> matrix;
-    matrix.SetDims(78,78);
+    matrix.SetDims(3,3);
     InputFile >> matrix;
     OutputFile<<matrix;
 
