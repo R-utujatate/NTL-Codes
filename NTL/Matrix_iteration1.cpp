@@ -7,6 +7,7 @@ using namespace std;
 using namespace NTL;
 
 int main() {
+    int size=78;
     // Define the input and output file names
     string inputFileName = "Matrix_input1.txt";
     string outputFileName = "Matrix_output1.txt";
@@ -24,7 +25,7 @@ int main() {
     ZZ p = conv<ZZ>("101");
     ZZ_p::init(p);
     Mat<ZZ_p> matrix;
-    matrix.SetDims(78, 78);
+    matrix.SetDims(size, size);
     inputFile >> matrix;
 
     // Close the input file
@@ -41,8 +42,8 @@ int main() {
 
     // Write the given matrix to the output file
     outputFile << "Given Matrix:" << endl;
-    for (long i = 0; i < 78; ++i) {
-        for (long j = 0; j < 78; ++j) {
+    for (long i = 0; i < size; ++i) {
+        for (long j = 0; j < size; ++j) {
             outputFile << matrix[i][j] << " ";
         }
         outputFile << endl;
@@ -55,14 +56,14 @@ int main() {
 
     // Write all submatrices with determinant zero to the output file
     outputFile << "Submatrices with determinant zero:" << endl;
-    for (long size = 39; size <= 78; ++size) {
-        for (long i = 0; i <= 78 - size; ++i) {
-            for (long j = 0; j <= 78 - size; ++j) {
+    for (long Size = (size/2); Size <= 78; ++Size) {
+        for (long i = 0; i <= size - Size; ++i) {
+            for (long j = 0; j <= size- Size; ++j) {
                 // Create a submatrix starting from position (i, j) with size x size
                 Mat<ZZ_p> submatrix;
-                submatrix.SetDims(size, size);
-                for (long row = 0; row < size; ++row) {
-                    for (long col = 0; col < size; ++col) {
+                submatrix.SetDims(Size, Size);
+                for (long row = 0; row < Size; ++row) {
+                    for (long col = 0; col < Size; ++col) {
                         submatrix[row][col] = matrix[i + row][j + col];
                     }
                 }
@@ -73,9 +74,9 @@ int main() {
                 // Check if the determinant is zero
                 if (IsZero(subDet)) {
                     // Write submatrix and its determinant to the output file
-                    outputFile << "Submatrix of size " << size << "x" << size << " starting at (" << i << ", " << j << "):" << endl;
-                    for (long row = 0; row < size; ++row) {
-                        for (long col = 0; col < size; ++col) {
+                    outputFile << "Submatrix of size " << Size << "x" << Size << " starting at (" << i << ", " << j << "):" << endl;
+                    for (long row = 0; row < Size; ++row) {
+                        for (long col = 0; col < Size; ++col) {
                             outputFile << submatrix[row][col] << " ";
                         }
                         outputFile << endl;
